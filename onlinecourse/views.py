@@ -111,19 +111,25 @@ def extract_answers(request):
     return submitted_answers
 
 
-# show_exam_result: evaluates a submission against each question and renders the score
+# show_exam_result: evaluates a submission against each question and renders the score as a percentage
 def show_exam_result(request, course_id, submission_id):
     course = get_object_or_404(Course, pk=course_id)
     submission = get_object_or_404(Submission, pk=submission_id)
     selected_choice_ids = submission.choices.values_list('id', flat=True)
     total_score = 0
+    total_possible = 0
     for question in course.question_set.all():
+        total_possible += question.question_grade
         if question.is_get_score(selected_choice_ids):
             total_score += question.question_grade
+    if total_possible > 0:
+        grade = round((total_score / total_possible) * 100)
+    else:
+        grade = 0
     context = {
         'course': course,
         'submission': submission,
         'selected_choice_ids': list(selected_choice_ids),
-        'grade': total_score,
+        'grade': grade,
     }
     return render(request, 'onlinecourse/exam_result_bootstrap.html', context)
