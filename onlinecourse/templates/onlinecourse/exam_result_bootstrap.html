@@ -1,0 +1,39 @@
+{% extends "onlinecourse/user_login_bootstrap.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h1>Exam Result</h1>
+  <h3 class="text-muted">{{ course.name }}</h3>
+
+  {% if grade >= 80 %}
+  <div class="alert alert-success mt-3">
+    <h3>Congratulations! You passed the exam.</h3>
+  </div>
+  {% else %}
+  <div class="alert alert-warning mt-3">
+    <h3>You did not pass this time. Review the material and try again.</h3>
+  </div>
+  {% endif %}
+
+  <h4>Your Score: {{ grade }}%</h4>
+
+  <h3 class="mt-4">Exam Review</h3>
+  {% for question in course.questions.all %}
+  <div class="card mb-3">
+    <div class="card-body">
+      <h5 class="card-title">{{ question.question_text }} <small class="text-muted">({{ question.question_grade }} pts)</small></h5>
+      {% for choice in question.choices.all %}
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" disabled {% if choice.id in selected_choice_ids %}checked{% endif %}>
+        <label class="form-check-label {% if choice.is_correct %}text-success font-weight-bold{% endif %}">
+          {{ choice.choice_text }}
+          {% if choice.is_correct %}(Correct answer){% endif %}
+        </label>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+
+  <a href="{% url 'onlinecourse:course_details' course.id %}" class="btn btn-secondary">Back to Course</a>
+</div>
+{% endblock %}
